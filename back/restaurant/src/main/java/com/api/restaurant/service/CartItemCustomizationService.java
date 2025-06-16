@@ -1,5 +1,8 @@
 package com.api.restaurant.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,18 +32,24 @@ public class CartItemCustomizationService {
 
     private static final Logger logger = LoggerFactory.getLogger(CartItemCustomizationService.class);
 
-    public CartItemCustomization create(CartItemCustomizationDTO cartItemCustomizationDTO) {
+    public List<CartItemCustomization> create(List<CartItemCustomizationDTO> cartItemCustomizationDTOs) {
         logger.info("Creating cartItemCustomization");
 
-        CartItemCustomization cartItemCustomization = modelMapper.map(cartItemCustomizationDTO, CartItemCustomization.class);
+        List<CartItemCustomization> customizations = new ArrayList<>();
 
-        CartItem cartItem = cartItemService.findById(cartItemCustomizationDTO.getCartItem());
-        cartItemCustomization.setCartItem(cartItem);
+        for (CartItemCustomizationDTO dto : cartItemCustomizationDTOs) {
+            CartItemCustomization cartItemCustomization = modelMapper.map(dto, CartItemCustomization.class);
+    
+            CartItem cartItem = cartItemService.findById(dto.getCartItem());
+            cartItemCustomization.setCartItem(cartItem);
+    
+            ProductCustomizationValue productCustomizationValue = productCustomizationValueService.findById(dto.getCustomizationValue());
+            cartItemCustomization.setCustomizationValue(productCustomizationValue);
 
-        ProductCustomizationValue productCustomizationValue = productCustomizationValueService.findById(cartItemCustomizationDTO.getCustomizationValue());
-        cartItemCustomization.setCustomizationValue(productCustomizationValue);
+            customizations.add(cartItemCustomization);
+        }
 
-        return cartItemCustomizationRepository.save(cartItemCustomization);
+        return cartItemCustomizationRepository.saveAll(customizations);
     }
 
     public CartItemCustomization update(CartItemCustomizationDTO cartItemCustomizationDTO) {

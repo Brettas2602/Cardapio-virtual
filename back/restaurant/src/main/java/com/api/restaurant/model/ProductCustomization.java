@@ -16,6 +16,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 
 @Entity
@@ -43,6 +44,7 @@ public class ProductCustomization {
     private Product product;
 
     @OneToMany(mappedBy = "productCustomizations", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("id ASC")
     private Set<ProductCustomizationValue> customizationValues;
 
     @CreationTimestamp

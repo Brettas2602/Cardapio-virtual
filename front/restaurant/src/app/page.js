@@ -1,10 +1,10 @@
 import { UserProvider } from "@/contexts/userContext";
-import Header from "./_home/home";
+import Home from "./_home/home";
 
-export default function Home() {
+export default function Page() {
   return (
     <div>
-      <Header/>
+      <Home />
     </div>
   );
 }

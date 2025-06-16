@@ -17,6 +17,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 
 @Entity
@@ -26,7 +27,7 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "total_price", precision = 10, scale = 2, nullable = false)
+    @Column(name = "total_price", precision = 10, scale = 2)
     private BigDecimal totalPrice;
 
     @OneToOne
@@ -35,6 +36,7 @@ public class Cart {
     private User user;
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("id ASC")
     @JsonManagedReference
     private Set<CartItem> cartItems;
 

@@ -1,5 +1,7 @@
 package com.api.restaurant.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,8 +24,8 @@ public class OrderItemCustomizationController {
     OrderItemCustomizationService orderItemCustomizationService;
 
     @PostMapping
-    public ResponseEntity<OrderItemCustomization> create(@RequestBody OrderItemCustomizationDTO orderItemCustomizationDTO) {
-        OrderItemCustomization createdOrderItemCustomization = orderItemCustomizationService.create(orderItemCustomizationDTO);
+    public ResponseEntity<List<OrderItemCustomization>> create(@RequestBody List<OrderItemCustomizationDTO> orderItemCustomizationDTO) {
+        List<OrderItemCustomization> createdOrderItemCustomization = orderItemCustomizationService.create(orderItemCustomizationDTO);
         return ResponseEntity.status(HttpStatus.CREATED)
                              .body(createdOrderItemCustomization);
     }

@@ -2,8 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 
 export default function ProductCard({ category, setSelectedProduct, setModalIsOpen }) {
-
-
     return (
         <div className="grid lg:grid-cols-2 lg:gap-2 border border-gray-700 px-4 py-4 rounded-xl">
             <div className="font-bold text-xl sm:text-2xl  mb-4 lg:col-span-2">

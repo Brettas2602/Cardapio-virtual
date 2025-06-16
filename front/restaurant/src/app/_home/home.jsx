@@ -14,7 +14,7 @@ import { useUser } from "@/contexts/userContext";
 import DrawerNavigation from "@/components/drawerNavigation";
 import ProductModal from "@/components/productModal";
 
-export default function Header() {
+export default function Home() {
 
     const API_URL = `${BASE_API_URL}/categories`
 
@@ -34,7 +34,6 @@ export default function Header() {
 
     useEffect(() => {
         fetchCategories()
-        console.log(user)
     }, [])
 
     async function fetchCategories() {
@@ -90,7 +89,10 @@ export default function Header() {
                 <button onClick={() => setMenuIsOpen(true)}>
                     <FiMenu className="w-8 h-fit" />
                 </button>
-                <FiShoppingCart className="w-8 h-fit" />
+
+                <a href={user ? "/cart" : "/login"}>
+                    <FiShoppingCart className="w-8 h-fit" />
+                </a>
             </div>
 
             <DrawerNavigation isOpen={menuIsOpen} setIsOpen={setMenuIsOpen}/>

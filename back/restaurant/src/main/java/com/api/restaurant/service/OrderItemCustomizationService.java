@@ -1,5 +1,8 @@
 package com.api.restaurant.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,18 +32,24 @@ public class OrderItemCustomizationService {
 
     private static final Logger logger = LoggerFactory.getLogger(OrderItemCustomizationService.class);
 
-    public OrderItemCustomization create(OrderItemCustomizationDTO orderItemCustomizationDTO) {
+    public List<OrderItemCustomization> create(List<OrderItemCustomizationDTO> orderItemCustomizationDTOs) {
         logger.info("Creating orderItemCustomization");
 
-        OrderItemCustomization orderItemCustomization = modelMapper.map(orderItemCustomizationDTO, OrderItemCustomization.class);
+        List<OrderItemCustomization> customizations = new ArrayList<>();
 
-        OrderItem orderItem = orderItemService.findById(orderItemCustomizationDTO.getOrderItem());
-        orderItemCustomization.setOrderItem(orderItem);
+        for (OrderItemCustomizationDTO dto : orderItemCustomizationDTOs) {
+            OrderItemCustomization orderItemCustomization = modelMapper.map(dto, OrderItemCustomization.class);
+    
+            OrderItem orderItem = orderItemService.findById(dto.getOrderItem());
+            orderItemCustomization.setOrderItem(orderItem);
+    
+            ProductCustomizationValue productCustomizationValue = productCustomizationValueService.findById(dto.getCustomizationValue());
+            orderItemCustomization.setCustomizationValue(productCustomizationValue);
 
-        ProductCustomizationValue productCustomizationValue = productCustomizationValueService.findById(orderItemCustomizationDTO.getCustomizationValue());
-        orderItemCustomization.setCustomizationValue(productCustomizationValue);
+            customizations.add(orderItemCustomization);
+        }
 
-        return orderItemCustomizationRepository.save(orderItemCustomization);
+        return orderItemCustomizationRepository.saveAll(customizations);
     }
 
     public OrderItemCustomization update(OrderItemCustomizationDTO orderItemCustomizationDTO) {

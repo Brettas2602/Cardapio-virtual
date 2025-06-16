@@ -1,5 +1,7 @@
 package com.api.restaurant.service;
 
+import java.math.BigDecimal;
+
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.api.restaurant.DTO.CartDTO;
 import com.api.restaurant.exception.ResourceNotFoundException;
 import com.api.restaurant.model.Cart;
+import com.api.restaurant.model.CartItem;
 import com.api.restaurant.model.User;
 import com.api.restaurant.repository.CartRepository;
 
@@ -36,11 +39,31 @@ public class CartService {
 
     public Cart getCartWithCustomizationsByUserId(Long id) {
         logger.info("Searching for cart and customizations with ID: " + id);
-        return cartRepository.getCartWithCustomizationsByUser(id)
+        Cart cart = cartRepository.getCartWithCustomizationsByUser(id)
             .orElseThrow(() -> {
                 logger.error("Cart do not exists");
                 return new ResourceNotFoundException("Cart", id);
             });
+
+        BigDecimal cartTotal = BigDecimal.ZERO;
+
+        for (CartItem cartItem : cart.getCartItems()) {
+            BigDecimal itemBasePrice = cartItem.getProduct().getBasePrice();
+            int quantity = cartItem.getQuantity();
+
+            BigDecimal customizationTotal = cartItem.getCartItemCustomizations().stream()
+                .map(cic -> cic.getCustomizationValue().getAdditionalPrice())
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            BigDecimal itemTotal = itemBasePrice.add(customizationTotal)
+                                                .multiply(BigDecimal.valueOf(quantity));
+
+            cartItem.setTotalPrice(itemTotal);
+            cartTotal = cartTotal.add(itemTotal);
+        }
+
+        cart.setTotalPrice(cartTotal);
+        return cart;
     }
 
     public Cart create(CartDTO cartDTO) {
@@ -75,7 +98,7 @@ public class CartService {
 
     public void delete(Long id) {
         logger.info("Checking if cart exists");
-        Cart cartEntity = cartRepository.findById(id)
+        Cart cartEntity = cartRepository.getCartWithCustomizations(id)
             .orElseThrow(() -> {
                 logger.error("Cart do not exists");
                 return new ResourceNotFoundException("Cart", id);

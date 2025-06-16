@@ -11,6 +11,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 
 @Entity
@@ -24,6 +25,7 @@ public class Category {
     private String name;
 
     @ManyToMany(mappedBy = "categories")
+    @OrderBy("id ASC")
     private Set<Product> products;
 
     @CreationTimestamp

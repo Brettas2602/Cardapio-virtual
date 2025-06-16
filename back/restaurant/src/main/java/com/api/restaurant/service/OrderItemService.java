@@ -1,5 +1,8 @@
 package com.api.restaurant.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,33 +35,40 @@ public class OrderItemService {
     public OrderItem findById(Long id) {
         logger.info("Searching for orderItem with ID: " + id);
         return orderItemRepository.findById(id)
-            .orElseThrow(() -> {
-                logger.error("OrderItem do not exists");
-                return new ResourceNotFoundException("Order Item", id);
-            });
+                .orElseThrow(() -> {
+                    logger.error("OrderItem do not exists");
+                    return new ResourceNotFoundException("Order Item", id);
+                });
     }
 
-    public OrderItem create(OrderItemDTO orderItemDTO) {
+    public List<OrderItem> create(List<OrderItemDTO> orderItemDTOs) {
         logger.info("Creating orderItem");
 
-        OrderItem orderItem = modelMapper.map(orderItemDTO, OrderItem.class);
+        List<OrderItem> items = new ArrayList<>();
 
-        Order order = orderService.findById(orderItemDTO.getOrder());
-        orderItem.setOrder(order);
+        for (OrderItemDTO dto : orderItemDTOs) {
 
-        Product product = productService.findById(orderItemDTO.getProduct());
-        orderItem.setProduct(product);
+            OrderItem orderItem = modelMapper.map(dto, OrderItem.class);
 
-        return orderItemRepository.save(orderItem);
+            Order order = orderService.findById(dto.getOrder());
+            orderItem.setOrder(order);
+
+            Product product = productService.findById(dto.getProduct());
+            orderItem.setProduct(product);
+
+            items.add(orderItem);
+        }
+
+        return orderItemRepository.saveAll(items);
     }
 
     public OrderItem update(OrderItemDTO orderItemDTO) {
         logger.info("Checking if orderItem exists");
         OrderItem initialOrderItem = orderItemRepository.findById(orderItemDTO.getId())
-            .orElseThrow(() -> {
-                logger.error("OrderItem do not exists");
-                return new ResourceNotFoundException("Order Item", orderItemDTO.getId());
-            });
+                .orElseThrow(() -> {
+                    logger.error("OrderItem do not exists");
+                    return new ResourceNotFoundException("Order Item", orderItemDTO.getId());
+                });
 
         OrderItem orderItem = modelMapper.map(orderItemDTO, OrderItem.class);
 
@@ -69,7 +79,7 @@ public class OrderItemService {
         orderItem.setProduct(product);
 
         orderItem.setOrderItemCustomizations(initialOrderItem.getOrderItemCustomizations());
-        
+
         logger.info("Updating orderItem");
         return orderItemRepository.save(orderItem);
     }
@@ -77,10 +87,10 @@ public class OrderItemService {
     public void delete(Long id) {
         logger.info("Checking if orderItem exists");
         OrderItem orderItemEntity = orderItemRepository.findById(id)
-            .orElseThrow(() -> {
-                logger.error("OrderItem do not exists");
-                return new ResourceNotFoundException("Order Item", id);
-            });
+                .orElseThrow(() -> {
+                    logger.error("OrderItem do not exists");
+                    return new ResourceNotFoundException("Order Item", id);
+                });
         logger.info("Deleting orderItem");
         orderItemRepository.delete(orderItemEntity);
     }

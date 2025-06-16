@@ -6,12 +6,16 @@ import { useState } from "react";
 import { BASE_API_URL } from "@/apiUrl/apiUrl";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { useUser } from "@/contexts/userContext";
 
 export default function SignUp() {
 
-    const API_URL = `${BASE_API_URL}/users`
+    const API_USER_URL = `${BASE_API_URL}/users`
+    const API_CART_URL = `${BASE_API_URL}/cart`
 
     const router = useRouter()
+
+    const {setUser, setCart} = useUser()
     
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -22,12 +26,23 @@ export default function SignUp() {
         const credentialsIsValid = await checkCredentials()
 
         if (credentialsIsValid) {
-            await axios.post(API_URL, {
+            const {data: user} = await axios.post(API_USER_URL, {
                 email: email,
                 password: password
             })
+
+            createUserCart(user.id)
+            setUser(user)
             router.replace('/')
         }
+    }
+
+    async function createUserCart(userId) {
+        const {data: cart} = await axios.post(API_CART_URL, {
+            user: userId
+        })
+
+        setCart(cart)
     }
 
     async function checkCredentials() {
